@@ -41,6 +41,7 @@ void loop() {
       flag1 = 1;
       delay(2000); // Delay antes de abrir la barrera
       myservo.write(0); // Abre la barrera
+      Serial.println(1);
       Slot--;
       delay(3000); // Delay para permitir que el coche pase completamente
       myservo.write(100); // Cierra la barrera
@@ -60,11 +61,44 @@ void loop() {
     flag2 = 1;
     delay(2000); // Delay antes de abrir la barrera
     myservo.write(0); // Abre la barrera
+    Serial.println(2);
     Slot++;
     delay(3000); // Delay para permitir que el coche pase completamente
     myservo.write(100); // Cierra la barrera
     delay(1000); // Pequeño delay después de cerrar la barrera
     flag2 = 0; // Resetea la bandera
+  }
+
+  // Verificar si se ha recibido un número a través de la comunicación serial
+  if (Serial.available() > 0) {
+    int receivedNumber = Serial.parseInt();
+    if (receivedNumber == 8) {
+      if (Slot > 0) {
+        // Abre la barrera cuando se recibe el número 8
+        myservo.write(0); // Abre la barrera
+        Slot--; // Decrementa el número de espacios disponibles
+        delay(3000); // Delay para permitir que el coche pase completamente
+        myservo.write(100); // Cierra la barrera
+        delay(1000); // Pequeño delay después de cerrar la barrera
+      } else {
+        lcd.setCursor(0, 0);
+        lcd.print("    LO SENTIMOS :(    ");
+        lcd.setCursor(0, 1);
+        lcd.print("  Parqueo lleno  ");
+        delay(3000);
+        lcd.clear();
+      }
+    } else if (receivedNumber == 9) {
+      flag2 = 1;
+      delay(2000); // Delay antes de abrir la barrera
+      myservo.write(0); // Abre la barrera
+      Serial.println(2);
+      Slot++;
+      delay(3000); // Delay para permitir que el coche pase completamente
+      myservo.write(100); // Cierra la barrera
+      delay(1000); // Pequeño delay después de cerrar la barrera
+      flag2 = 0; // Resetea la bandera
+    }
   }
 
   // Actualiza la pantalla LCD
@@ -99,3 +133,4 @@ void scanI2C() {
   if (Devices == 0) Serial.println("No I2C devices found\n");
   else Serial.println("done\n");
 }
+
