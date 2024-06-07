@@ -1,5 +1,6 @@
 # Librerias para la conexion a Azure
 import pypyodbc as odbc #pip install pypyobdc
+import pyodbc as py
 import pandas as pd #pip install pandas
 # Librerias para la interfaz
 import tkinter as tk
@@ -11,10 +12,23 @@ from tkinter import Button
 # Lectura del puerto en tiempo real
 import threading
 import time
+
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
+
+
 # Librerias para conexion SQL
-
 import mysql.connector #SQL
+"""
+server = 'progra3.database.windows.net' #conexion a servidor
+database = 'PARQUEO' #conexion a base de datos
+connection_string = 'Driver={ODBC Driver 18 for SQL Server};Server=tcp:progra3.database.windows.net,1433;Database=PARQUEO;Uid=jona1;Pwd={your_password_here};Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;' 
+#link a la conexion
+conn = odbc.connect(connection_string)
+#objeto de conexion a azure
 
+"""
 def leer_serial(puerto):
     # Configurar la conexión serial
     try:
@@ -118,7 +132,7 @@ def show_no_parking_message():
 def on_closing():
     if puerto.is_open:
         puerto.close()
-    root.destroy()
+    interfaz.destroy()
 
 # Función para abrir la talanquera
 def open_talanquera():
@@ -150,34 +164,60 @@ try:
     lectura.daemon = True
     lectura.start()
     # Configurar la ventana de tkinter
-    root = tk.Tk()
-    root.title("Sistema de Parqueos")
+    interfaz = tk.Tk()
+    interfaz.config(width=1000, height=1000, background= "dim gray")
+    interfaz.title("Proyecto Programación III")
 
 
-    title_label = tk.Label(root, text="Sistema de Gestión de Parqueos", font=("Helvetica", 18, "bold"))
-    title_label.pack(pady=30)
-    title_label = tk.Label(root, text="Grupo #6 , Programación III", font=("Helvetica", 14))
-    title_label.pack(pady=0)
+    title_label = tk.Label(interfaz, text="Sistema de Gestión de Parqueos", font=("Helvetica", 20, "bold"), background="dim gray")
+    title_label.place(x=100, y= 50)
+    title_label = tk.Label(interfaz, text="Grupo #6", font=("Helvetica", 18))
+    title_label.place(x=100, y=100)
 
-    label = tk.Label(root, text=f"Parqueos disponibles: {parking_slots}", font=("Helvetica", 16))
-    label.pack(pady=30)
+    if(parking_slots>0):
+        label = tk.Label(interfaz, text=f"Parqueos disponibles: {parking_slots}", font=("Helvetica", 18), background="spring green")
+        label.place(x=600, y=200)
+    if(parking_slots <1):
+        label = tk.Label(interfaz, text=f"Parqueos disponibles: {parking_slots}", font=("Helvetica", 18), background="red")
+        label.place(x=600, y=200)
 
-    title_label = tk.Label(root, text="Control Manual", font=("Helvetica", 14, "bold"))
-    title_label.pack(pady=0)
+    title_label = tk.Label(interfaz, text="Control Manual", font=("Helvetica", 16, "bold"), background="khaki")
+    title_label.place(x=100, y=400)
 
 
         # Añadir botones para abrir y cerrar la talanquera
-    open_button = tk.Button(root, text="Entrada", command=open_talanquera, font=("Helvetica", 14))
-    open_button.pack(pady=10)
+    open_button = tk.Button(interfaz, text="", command=open_talanquera, font=("Helvetica", 14), background="lawn green")
+    open_button.place(x=100, y=450)
+    entrada_label = tk.Label(interfaz, text = f"Entrada", font=("Helvetica", 14), background="dim gray")
+    entrada_label.place(x=75, y=475)
 
-    close_button = tk.Button(root, text="Salida", command=close_talanquera, font=("Helvetica", 14))
-    close_button.pack(pady=10)
+    close_button = tk.Button(interfaz, text="", command=close_talanquera, font=("Helvetica", 14), background="red")
+    close_button.place(x=200, y=450)
+    salida_label = tk.Label(interfaz, text = f"Salida", font=("Helvetica", 14), background="dim gray")
+    salida_label.place(x=200, y=475)
+    #Diseño de parqueo animado
+    
+    canvas = tk.Canvas(interfaz, width=500, height=500, bg='dim gray')
+    canvas.pack()
+    canvas.place(x=400, y= 300)
+   
+    # Dibujar un rectángulo
+    
+    # Dibujar un cuadrado
+    canvas.create_rectangle(50, 50, 150, 150, fill='green', outline='dim gray')
+    canvas.create_rectangle(200, 50, 300, 150, fill='green', outline='dim gray')
+    canvas.create_rectangle(350, 50, 450, 150, fill='green', outline='dim gray')
+    canvas.create_rectangle(350, 200, 450, 300, fill='green', outline='dim gray')
+    canvas.create_rectangle(450, 200, 200, 200, fill='orange', outline='dim gray')
 
+     # Dibujar flechas
+    canvas.create_line(50, 200, 200, 200, arrow=tk.LAST, fill='yellow', width=3)
+    canvas.create_line(50, 250, 200, 250, arrow=tk.LAST, fill='yellow', width=3)
         # Manejar el cierre de la ventana
-    root.protocol("WM_DELETE_WINDOW", on_closing)
+    interfaz.protocol("WM_DELETE_WINDOW", on_closing)
 
         # Iniciar el loop de tkinter
-    root.mainloop()
+    interfaz.mainloop()
 
 except serial.SerialException as e:
     print(f"Error al abrir el puerto: {e}")
